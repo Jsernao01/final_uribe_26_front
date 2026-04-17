@@ -19,8 +19,8 @@ interface IBackendLoginResponse {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
-  private readonly sessionStorageKey = 'uribe-metrics-session';
-  private readonly tokenStorageKey = 'uribe-metrics-token';
+  private readonly sessionStorageKey = 'ecocesde-session';
+  private readonly tokenStorageKey = 'ecocesde-token';
 
   private readonly currentUserSignal = signal<IUserSession | null>(this.readStoredSession());
   private readonly tokenSignal = signal<string | null>(this.readStoredToken());

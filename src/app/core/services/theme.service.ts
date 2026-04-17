@@ -4,7 +4,7 @@ export type ThemeMode = 'light' | 'dark';
 
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
-  private readonly storageKey = 'uribe-metrics-theme';
+  private readonly storageKey = 'ecocesde-theme';
 
   readonly theme = signal<ThemeMode>(this.readInitialTheme());
 
