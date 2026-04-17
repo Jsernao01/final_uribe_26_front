@@ -1,0 +1,32 @@
+:host {
+  display: block;
+}
+
+.chart-card {
+  border-radius: 30px;
+  padding: 1.25rem;
+  display: grid;
+  gap: 1rem;
+  min-height: 380px;
+}
+
+.chart-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.chart-head h3 {
+  font-size: 1.4rem;
+}
+
+.chart-head p {
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.chart-wrapper {
+  position: relative;
+  min-height: 280px;
+}

@@ -1,0 +1,188 @@
+<section class="overview-shell">
+  <header class="hero app-surface">
+    <div class="hero-copy">
+      <span class="pill">
+        <span class="status-dot"></span>
+        {{ mode() === 'demo' ? 'Modo demostración' : 'Datos reales' }}
+      </span>
+      <h2>Panel analítico del ecommerce</h2>
+      <p>
+        El dashboard consume la capa de analítica y deja a la vista señales de backend,
+        métricas agregadas y muestras del catálogo real.
+      </p>
+    </div>
+
+    <button mat-flat-button color="primary" class="refresh-btn" (click)="reload()">
+      <mat-icon>refresh</mat-icon>
+      <span>Recargar</span>
+    </button>
+  </header>
+
+  <div class="status-grid">
+    @for (status of statuses(); track status.label) {
+      <article class="status-card app-surface">
+        <div class="status-head">
+          <span class="pill" [class.status-ok]="status.healthy" [class.status-bad]="!status.healthy">
+            <span class="status-dot"></span>
+            {{ status.label }}
+          </span>
+        </div>
+        <p>{{ status.detail }}</p>
+      </article>
+    }
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading app-surface">
+      <mat-spinner diameter="42"></mat-spinner>
+      <p>Cargando datos del backend y la capa analítica...</p>
+    </div>
+  } @else {
+    @if (dashboardError()) {
+      <div class="feedback error">
+        <mat-icon>warning</mat-icon>
+        <span>{{ dashboardError() }}</span>
+      </div>
+    }
+
+    <div class="kpi-grid">
+      @for (kpi of kpis(); track kpi.title) {
+        <app-kpi-card [kpi]="kpi"></app-kpi-card>
+      }
+    </div>
+
+    <div class="charts-grid">
+      <app-sellers-chart
+        title="Productos más vendidos"
+        subtitle="Top 5 por unidades vendidas"
+        [chartData]="productsChartData()"
+        [chartOptions]="productsChartOptions()">
+      </app-sellers-chart>
+
+      <app-stores-chart
+        title="Clientes con mayor compra"
+        subtitle="Distribución del gasto en clientes top"
+        [chartData]="clientsChartData()"
+        [chartOptions]="clientsChartOptions()">
+      </app-stores-chart>
+    </div>
+
+    <div class="insights-grid">
+      <section class="panel app-surface">
+        <div class="panel-head">
+          <h3>Productos líderes</h3>
+          <p>Lo que más rota dentro de la operación.</p>
+        </div>
+        <div class="rank-list">
+          @for (item of topProducts(); track trackProduct($index, item)) {
+            <article class="rank-item">
+              <div>
+                <strong>{{ item.producto_nombre }}</strong>
+                <span>{{ item.veces_vendido }} ventas</span>
+              </div>
+              <div class="rank-metric">
+                <strong>{{ formatCompactNumber(item.unidades_vendidas) }}</strong>
+                <span>{{ formatCurrency(item.ingresos_generados) }}</span>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+
+      <section class="panel app-surface">
+        <div class="panel-head">
+          <h3>Clientes top</h3>
+          <p>Quienes más compran en el periodo disponible.</p>
+        </div>
+        <div class="rank-list">
+          @for (item of topClients(); track trackClient($index, item)) {
+            <article class="rank-item">
+              <div>
+                <strong>{{ item.cliente_nombre }}</strong>
+                <span>{{ item.compras_realizadas }} compras</span>
+              </div>
+              <div class="rank-metric">
+                <strong>{{ formatCurrency(item.monto_total_comprado) }}</strong>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+
+      <section class="panel app-surface">
+        <div class="panel-head">
+          <h3>Desempeño de vendedores</h3>
+          <p>Ranking por ingresos generados.</p>
+        </div>
+        <div class="rank-list">
+          @for (item of topEmployees(); track trackEmployee($index, item)) {
+            <article class="rank-item">
+              <div>
+                <strong>{{ item.empleado_nombre }}</strong>
+                <span>{{ item.ventas_realizadas }} ventas</span>
+              </div>
+              <div class="rank-metric">
+                <strong>{{ formatCurrency(item.ingresos_generados) }}</strong>
+                <span>{{ formatCompactNumber(item.unidades_vendidas) }} uds</span>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+
+      <section class="panel app-surface">
+        <div class="panel-head">
+          <h3>Mensajes de analítica</h3>
+          <p>Contexto del procesamiento y fuente usada.</p>
+        </div>
+        <div class="message-list">
+          <span class="source-tag">{{ analytics()?.fuente_backend }}</span>
+          @for (message of analyticsMessages(); track message) {
+            <div class="message-item">
+              <mat-icon>subdirectory_arrow_right</mat-icon>
+              <span>{{ message }}</span>
+            </div>
+          }
+        </div>
+      </section>
+    </div>
+
+    <div class="data-grid">
+      <section class="panel app-surface">
+        <div class="panel-head">
+          <h3>Usuarios del backend</h3>
+          <p>Muestra directa desde `GET /usuarios/listar`.</p>
+        </div>
+        <div class="table-list">
+          @for (user of users().slice(0, 6); track user.id) {
+            <article class="table-row">
+              <div>
+                <strong>{{ user.nombres }} {{ user.apellidos }}</strong>
+                <span>{{ user.correo }}</span>
+              </div>
+              <span class="role-tag">{{ user.rol }}</span>
+            </article>
+          }
+        </div>
+      </section>
+
+      <section class="panel app-surface">
+        <div class="panel-head">
+          <h3>Catálogo del backend</h3>
+          <p>Muestra directa desde `GET /productos/buscar`.</p>
+        </div>
+        <div class="table-list">
+          @for (product of products().slice(0, 6); track product.id) {
+            <article class="table-row">
+              <div>
+                <strong>{{ product.nombre }}</strong>
+                <span>{{ product.categorias.length }} categorías · stock {{ productStock(product) }}</span>
+              </div>
+              <span class="price-tag">{{ formatCurrency(product.precio) }}</span>
+            </article>
+          }
+        </div>
+      </section>
+    </div>
+  }
+</section>

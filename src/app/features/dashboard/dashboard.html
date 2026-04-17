@@ -1,0 +1,51 @@
+<section class="dashboard-shell">
+  <aside class="sidebar app-surface">
+    <div class="brand-block">
+      <span class="brand-pill">Datos</span>
+      <h1>Uribe Metrics</h1>
+      <p>Vista operativa conectada a backend y analítica.</p>
+    </div>
+
+    <nav class="nav-list">
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        <mat-icon>dashboard</mat-icon>
+        <span>Resumen</span>
+      </a>
+      <a routerLink="/register">
+        <mat-icon>person_add</mat-icon>
+        <span>Nuevo cliente</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="theme-row">
+        <span>{{ themeLabel() }}</span>
+        <mat-slide-toggle
+          color="primary"
+          [checked]="themeService.theme() === 'dark'"
+          (change)="themeService.toggleTheme()">
+        </mat-slide-toggle>
+      </div>
+
+      @if (currentUser()) {
+        <div class="user-card">
+          <div class="avatar">{{ currentUser()?.firstName?.charAt(0) }}</div>
+          <div>
+            <strong>{{ currentUser()?.fullName }}</strong>
+            <p>{{ currentUser()?.email }}</p>
+            <span>{{ currentUser()?.role }}</span>
+          </div>
+        </div>
+      }
+
+      <button mat-stroked-button class="logout-btn" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Cerrar sesión</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="dashboard-content">
+    <router-outlet></router-outlet>
+  </main>
+</section>

@@ -1,0 +1,164 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.register-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.15fr);
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.register-copy,
+.register-panel {
+  border-radius: 32px;
+}
+
+.register-copy {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.copy-top,
+.panel-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.copy-body,
+.panel-head {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.eyebrow {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--accent-strong);
+}
+
+.copy-body h1,
+.panel-head h2 {
+  font-size: clamp(2.4rem, 4.8vw, 3.6rem);
+}
+
+.description,
+.panel-head p:last-child {
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.copy-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.copy-card {
+  padding: 1rem 1.1rem;
+  border-radius: 22px;
+  background: var(--bg-soft);
+  border: 1px solid var(--stroke);
+  display: grid;
+  gap: 0.5rem;
+}
+
+.copy-card span {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  display: inline-grid;
+  place-items: center;
+  font-weight: 700;
+}
+
+.register-panel {
+  padding: 2rem;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.register-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.form-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.form-grid.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.form-grid.three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.feedback {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.95rem 1rem;
+  border-radius: 18px;
+}
+
+.feedback.error {
+  color: var(--danger);
+  background: rgba(198, 90, 68, 0.1);
+  border: 1px solid rgba(198, 90, 68, 0.18);
+}
+
+.submit-btn {
+  min-height: 3.35rem;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.panel-footer {
+  color: var(--text-muted);
+}
+
+.panel-footer a {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+@media (max-width: 1180px) {
+  .register-shell {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .register-shell {
+    padding: 1rem;
+  }
+
+  .register-copy,
+  .register-panel {
+    padding: 1.4rem;
+  }
+
+  .form-grid.two,
+  .form-grid.three {
+    grid-template-columns: 1fr;
+  }
+
+  .copy-top,
+  .panel-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

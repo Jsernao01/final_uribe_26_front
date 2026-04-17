@@ -1,0 +1,12 @@
+<section class="chart-card app-surface">
+  <div class="chart-head">
+    <div>
+      <h3>{{ title }}</h3>
+      <p>{{ subtitle }}</p>
+    </div>
+  </div>
+
+  <div class="chart-wrapper">
+    <canvas baseChart type="bar" [data]="chartData" [options]="chartOptions"></canvas>
+  </div>
+</section>

@@ -1,0 +1,95 @@
+<section class="auth-shell">
+  <div class="auth-copy">
+    <div class="copy-top">
+      <span class="pill">Front real conectado</span>
+      <mat-slide-toggle
+        color="primary"
+        [checked]="themeService.theme() === 'dark'"
+        (change)="themeService.toggleTheme()">
+        {{ themeLabel() }}
+      </mat-slide-toggle>
+    </div>
+
+    <div class="copy-body">
+      <p class="eyebrow">Uribe Metrics Studio</p>
+      <h1>Tu operación, tu catálogo y tu analítica en un solo tablero.</h1>
+      <p class="description">
+        Inicia sesión con un usuario del backend para entrar al dashboard y ver las métricas
+        consolidadas del ecommerce.
+      </p>
+    </div>
+
+    <div class="copy-highlights app-surface">
+      <div class="highlight">
+        <span class="highlight-value">Back</span>
+        <span class="highlight-label">usuarios, productos y órdenes</span>
+      </div>
+      <div class="highlight">
+        <span class="highlight-value">Analytics</span>
+        <span class="highlight-label">resumen, rankings y gráficos</span>
+      </div>
+      <div class="highlight">
+        <span class="highlight-value">UX</span>
+        <span class="highlight-label">tema persistente y recarga manual</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-panel app-surface">
+    <div class="panel-head">
+      <p class="eyebrow">Acceso</p>
+      <h2>Entrar al panel</h2>
+      <p>Usa el correo y la contraseña registrados en el backend.</p>
+    </div>
+
+    <form class="auth-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <mat-form-field appearance="outline">
+        <mat-label>Correo</mat-label>
+        <input matInput type="email" formControlName="email" />
+        <mat-icon matSuffix>alternate_email</mat-icon>
+        @if (loginForm.controls.email.touched && loginForm.controls.email.invalid) {
+          <mat-error>Ingresa un correo válido.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Contraseña</mat-label>
+        <input
+          matInput
+          [type]="hidePassword() ? 'password' : 'text'"
+          formControlName="password" />
+        <button mat-icon-button matSuffix type="button" (click)="togglePasswordVisibility()">
+          <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
+        </button>
+        @if (loginForm.controls.password.touched && loginForm.controls.password.invalid) {
+          <mat-error>La contraseña debe tener al menos 6 caracteres.</mat-error>
+        }
+      </mat-form-field>
+
+      @if (errorMessage()) {
+        <div class="feedback error">
+          <mat-icon>error</mat-icon>
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+
+      <button
+        mat-flat-button
+        color="primary"
+        class="submit-btn"
+        type="submit"
+        [disabled]="isLoading()">
+        @if (isLoading()) {
+          <mat-spinner diameter="20"></mat-spinner>
+        } @else {
+          <span>Entrar al dashboard</span>
+        }
+      </button>
+    </form>
+
+    <div class="panel-footer">
+      <span>¿Aún no tienes usuario?</span>
+      <a routerLink="/register">Crear cuenta cliente</a>
+    </div>
+  </div>
+</section>
