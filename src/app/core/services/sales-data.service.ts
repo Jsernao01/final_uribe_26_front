@@ -180,7 +180,7 @@ export class SalesDataService {
 
   private enhanceStatuses(statuses: IServiceStatus[], analyticsDetail: string): IServiceStatus[] {
     return statuses.map((status) =>
-      status.label === 'Analitica'
+      status.label === 'Reportes'
         ? {
             ...status,
             detail: analyticsDetail

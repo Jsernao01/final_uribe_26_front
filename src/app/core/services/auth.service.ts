@@ -52,7 +52,7 @@ export class AuthService {
 
   adminCreateUser(payload: any, rol: string): Observable<IAuthResponse> {
     return this.http
-      .post(`${API_BACKEND_BASE}/usuarios/admin/crear/`, {
+      .post(`${API_BACKEND_BASE}/usuarios/admin/crear/${rol}`, {
         nombres: payload.firstName.trim(),
         apellidos: payload.lastName.trim(),
         tipoDocumento: payload.documentType,
@@ -91,7 +91,7 @@ export class AuthService {
       id: user.id,
       firstName: user.nombres,
       lastName: user.apellidos,
-      fullName: ' '.trim(),
+      fullName: `${user.nombres ?? ''} ${user.apellidos ?? ''}`.trim(),
       email: user.correo,
       role: user.rol
     };

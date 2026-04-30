@@ -7,7 +7,7 @@ import {
   ValidationErrors,
   Validators
 } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -26,7 +26,6 @@ import { IAuthResponse } from '../../../models';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    RouterLink,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
