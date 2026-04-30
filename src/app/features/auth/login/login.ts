@@ -1,7 +1,7 @@
-import { Component, computed, inject, signal } from '@angular/core';
+﻿import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,7 +10,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { AuthService } from '../../../core/services/auth.service';
 import { ThemeService } from '../../../core/services/theme.service';
-import { IAuthResponse } from '../../../models';
 
 @Component({
   selector: 'app-login',
@@ -18,7 +17,6 @@ import { IAuthResponse } from '../../../models';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    RouterLink,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
@@ -38,6 +36,7 @@ export class LoginComponent {
   protected readonly hidePassword = signal(true);
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
+
   protected readonly themeLabel = computed(() =>
     this.themeService.theme() === 'dark' ? 'Modo noche' : 'Modo día'
   );
@@ -65,7 +64,7 @@ export class LoginComponent {
         this.isLoading.set(false);
         this.router.navigate(['/dashboard']);
       },
-      error: (error: IAuthResponse) => {
+      error: (error) => {
         this.isLoading.set(false);
         this.errorMessage.set(error.message);
       }

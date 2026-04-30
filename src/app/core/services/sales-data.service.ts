@@ -1,6 +1,6 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+﻿import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { catchError, forkJoin, map, Observable, of, switchMap } from 'rxjs';
+import { catchError, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 import { API_ANALYTICS_BASE, API_BACKEND_BASE } from '../config/api.config';
 import {
   IAnalyticsResponse,
@@ -20,12 +20,12 @@ interface IResult<T> {
 export class SalesDataService {
   private readonly http = inject(HttpClient);
 
-  getDashboardSnapshot(): Observable<IDashboardSnapshot> {
+  getDashboardSnapshot(forceDemo: boolean = false, sellerName: string = ""): Observable<IDashboardSnapshot> {
     return forkJoin({
       analyticsHealth: this.getAnalyticsHealth(),
       users: this.getUsers(),
       products: this.getProducts(),
-      analytics: this.getAnalytics(false)
+      analytics: this.getAnalytics(forceDemo, sellerName)
     }).pipe(
       switchMap(({ analyticsHealth, users, products, analytics }) => {
         const statuses = this.buildStatuses(analyticsHealth, users, products);
@@ -37,7 +37,7 @@ export class SalesDataService {
             users: users.data,
             products: products.data,
             statuses,
-            error: analytics.error ?? 'No fue posible cargar la analítica.'
+            error: analytics.error ?? 'No se pudieron cargar los reportes.'
           } satisfies IDashboardSnapshot);
         }
 
@@ -51,8 +51,8 @@ export class SalesDataService {
               statuses: this.enhanceStatuses(
                 statuses,
                 demoAnalytics.ok && demoAnalytics.data
-                  ? 'Analítica lista. Se activó modo demostración porque no había ventas reales.'
-                  : statuses[1]?.detail ?? 'Analítica lista.'
+                  ? 'Se cargaron datos de ejemplo porque aún no hay ventas registradas.'
+                  : statuses[1]?.detail ?? 'Reportes listos.'
               )
             }) satisfies IDashboardSnapshot)
           );
@@ -60,7 +60,7 @@ export class SalesDataService {
 
         return of({
           analytics: analytics.data,
-          mode: 'real',
+          mode: forceDemo ? 'demo' : 'real',
           users: users.data,
           products: products.data,
           statuses
@@ -69,11 +69,44 @@ export class SalesDataService {
     );
   }
 
+  exportToExcel(sellerName: string = ""): void {
+    const filters = {
+      filtros_usuarios: { nombres: '', apellidos: '', correo: '' },
+      filtros_productos: {
+        nombre: '',
+        minPrecio: 0,
+        maxPrecio: 0,
+        categorias: [],
+        descuento: 0,
+        color: ''
+      },
+      filtros_vendedores: { nombre: sellerName },
+      ventas: [],
+      usar_datos_ejemplo: false,
+      ensuciar_resultado: false,
+      limpiar_datos: true
+    };
+
+    this.http
+      .post(`${API_ANALYTICS_BASE}/analisis/exportar/excel`, filters, {
+        responseType: 'blob'
+      })
+      .subscribe({
+        next: (blob) => {
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'reporte_analitico.xlsx';
+          link.click();
+          window.URL.revokeObjectURL(url);
+        },
+        error: (error) => console.error('Error al exportar excel', error)
+      });
+  }
+
   private getUsers(): Observable<IResult<IUserPreview[]>> {
     return this.http
-      .request<IUserPreview[]>('GET', `${API_BACKEND_BASE}/usuarios/listar`, {
-        body: { nombres: '', apellidos: '', correo: '' }
-      })
+      .get<IUserPreview[]>(`${API_BACKEND_BASE}/usuarios/admin/listar`)
       .pipe(
         map((data) => ({ ok: true, data })),
         catchError((error) => of(this.wrapError<IUserPreview[]>(error, [])))
@@ -82,23 +115,14 @@ export class SalesDataService {
 
   private getProducts(): Observable<IResult<IProductPreview[]>> {
     return this.http
-      .request<IProductPreview[]>('GET', `${API_BACKEND_BASE}/productos/buscar`, {
-        body: {
-          nombre: '',
-          minPrecio: 0,
-          maxPrecio: 0,
-          categorias: [],
-          descuento: 0,
-          color: ''
-        }
-      })
+      .get<IProductPreview[]>(`${API_BACKEND_BASE}/productos/buscar`)
       .pipe(
         map((data) => ({ ok: true, data })),
         catchError((error) => of(this.wrapError<IProductPreview[]>(error, [])))
       );
   }
 
-  private getAnalytics(useDemoData: boolean): Observable<IResult<IAnalyticsResponse | null>> {
+  private getAnalytics(useDemoData: boolean, sellerName: string = ""): Observable<IResult<IAnalyticsResponse | null>> {
     return this.http
       .post<IAnalyticsResponse>(`${API_ANALYTICS_BASE}/analisis/completo`, {
         filtros_usuarios: { nombres: '', apellidos: '', correo: '' },
@@ -110,7 +134,8 @@ export class SalesDataService {
           descuento: 0,
           color: ''
         },
-        ventas: [],
+        filtros_vendedores: { nombre: sellerName },
+      ventas: [],
         usar_datos_ejemplo: useDemoData,
         ensuciar_resultado: false,
         limpiar_datos: true
@@ -137,25 +162,25 @@ export class SalesDataService {
 
     return [
       {
-        label: 'Backend',
+        label: 'Servidor',
         healthy: backendHealthy,
         detail: backendHealthy
-          ? `${users.data.length} usuarios y ${products.data.length} productos disponibles.`
-          : users.error ?? products.error ?? 'El backend no respondió correctamente.'
+          ? 'Conexión correcta, datos cargados.'
+          : users.error ?? products.error ?? 'No se pudo conectar al servidor. Verifica que esté encendido.'
       },
       {
-        label: 'Analítica',
+        label: 'Reportes',
         healthy: analyticsHealth.ok,
         detail: analyticsHealth.ok
-          ? 'API analítica disponible y escuchando correctamente.'
-          : analyticsHealth.error ?? 'No fue posible verificar la API analítica.'
+          ? 'Módulo de reportes funcionando.'
+          : analyticsHealth.error ?? 'No se pudo conectar al módulo de reportes.'
       }
     ];
   }
 
   private enhanceStatuses(statuses: IServiceStatus[], analyticsDetail: string): IServiceStatus[] {
     return statuses.map((status) =>
-      status.label === 'Analítica'
+      status.label === 'Analitica'
         ? {
             ...status,
             detail: analyticsDetail
@@ -175,7 +200,7 @@ export class SalesDataService {
     return {
       ok: false,
       data: fallbackData,
-      error: this.extractApiMessage(error, 'No fue posible completar la solicitud.')
+      error: this.extractApiMessage(error, 'Algo salió mal, intenta de nuevo.')
     };
   }
 

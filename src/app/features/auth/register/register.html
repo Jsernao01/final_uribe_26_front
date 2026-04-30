@@ -1,7 +1,7 @@
-<section class="register-shell">
+﻿<section class="register-shell">
   <div class="register-copy app-surface">
     <div class="copy-top">
-      <span class="pill">Alta de cliente</span>
+      <span class="pill">Gestión de Accesos</span>
       <mat-slide-toggle
         color="primary"
         [checked]="themeService.theme() === 'dark'"
@@ -11,35 +11,19 @@
     </div>
 
     <div class="copy-body">
-      <p class="eyebrow">Cuenta nueva</p>
-      <h1>Crea un acceso real en el backend.</h1>
+      <p class="eyebrow">Administración</p>
+      <h1>Crea nuevos accesos para tu equipo.</h1>
       <p class="description">
-        Este registro crea un cliente en tu API Java, con datos personales y una cuenta bancaria
-        asociada para que luego pueda entrar al dashboard.
+        Como administrador, puedes registrar nuevos vendedores o administradores para el panel operativo.
       </p>
-    </div>
-
-    <div class="copy-grid">
-      <div class="copy-card">
-        <span>1</span>
-        <p>Se guarda el usuario en `CLIENTE` dentro del backend.</p>
-      </div>
-      <div class="copy-card">
-        <span>2</span>
-        <p>La contraseña queda cifrada y luego se valida en `/auth/login`.</p>
-      </div>
-      <div class="copy-card">
-        <span>3</span>
-        <p>Después del registro puedes entrar de inmediato al panel analítico.</p>
-      </div>
     </div>
   </div>
 
   <div class="register-panel app-surface">
     <div class="panel-head">
-      <p class="eyebrow">Formulario</p>
-      <h2>Crear cuenta cliente</h2>
-      <p>Completa los datos mínimos para dejar el usuario listo en la API.</p>
+      <p class="eyebrow">Formulario Administrativo</p>
+      <h2>Registrar Usuario</h2>
+      <p>Completa los datos del nuevo miembro del equipo.</p>
     </div>
 
     <form class="register-form" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
@@ -62,8 +46,11 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Teléfono</mat-label>
-          <input matInput formControlName="phone" />
+          <mat-label>Rol del Sistema</mat-label>
+          <mat-select formControlName="role">
+            <mat-option value="VENDEDOR">Vendedor</mat-option>
+            <mat-option value="ADMINISTRADOR">Administrador</mat-option>
+          </mat-select>
         </mat-form-field>
       </div>
 
@@ -88,35 +75,20 @@
         </mat-form-field>
       </div>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Dirección</mat-label>
-        <input matInput formControlName="address" />
-      </mat-form-field>
-
-      <div class="form-grid three">
+      <div class="form-grid two">
         <mat-form-field appearance="outline">
-          <mat-label>Banco</mat-label>
-          <input matInput formControlName="bankName" />
+          <mat-label>Teléfono</mat-label>
+          <input matInput formControlName="phone" />
         </mat-form-field>
-
         <mat-form-field appearance="outline">
-          <mat-label>Número de cuenta</mat-label>
-          <input matInput formControlName="bankAccount" />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Tipo de cuenta</mat-label>
-          <mat-select formControlName="bankAccountType">
-            @for (type of accountTypes; track type.value) {
-              <mat-option [value]="type.value">{{ type.label }}</mat-option>
-            }
-          </mat-select>
+          <mat-label>Dirección</mat-label>
+          <input matInput formControlName="address" />
         </mat-form-field>
       </div>
 
       <div class="form-grid two">
         <mat-form-field appearance="outline">
-          <mat-label>Contraseña</mat-label>
+          <mat-label>Contraseña Temporal</mat-label>
           <input
             matInput
             [type]="hidePassword() ? 'password' : 'text'"
@@ -127,7 +99,7 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Confirmar contraseña</mat-label>
+          <mat-label>Confirmar Contraseña</mat-label>
           <input
             matInput
             [type]="hideConfirmPassword() ? 'password' : 'text'"
@@ -137,13 +109,6 @@
           </button>
         </mat-form-field>
       </div>
-
-      @if (registerForm.hasError('passwordMismatch') && registerForm.controls.confirmPassword.touched) {
-        <div class="feedback error">
-          <mat-icon>warning</mat-icon>
-          <span>Las contraseñas no coinciden.</span>
-        </div>
-      }
 
       @if (errorMessage()) {
         <div class="feedback error">
@@ -161,14 +126,9 @@
         @if (isLoading()) {
           <mat-spinner diameter="20"></mat-spinner>
         } @else {
-          <span>Guardar cuenta en backend</span>
+          <span>Registrar Miembro</span>
         }
       </button>
     </form>
-
-    <div class="panel-footer">
-      <span>¿Ya tienes acceso?</span>
-      <a routerLink="/login">Volver al inicio de sesión</a>
-    </div>
   </div>
 </section>

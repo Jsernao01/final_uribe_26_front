@@ -22,9 +22,9 @@ export interface IRegisterPayload {
   birthDate: string;
   address: string;
   password: string;
-  bankName: string;
-  bankAccount: string;
-  bankAccountType: 'DEBITO' | 'CREDITO';
+  bankName?: string;
+  bankAccount?: string;
+  bankAccountType?: 'DEBITO' | 'CREDITO';
 }
 
 export interface IAuthResponse {

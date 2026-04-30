@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+﻿import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   AbstractControl,
@@ -18,7 +18,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '../../../core/services/auth.service';
 import { ThemeService } from '../../../core/services/theme.service';
-import { IAuthResponse, IRegisterPayload } from '../../../models';
+import { IAuthResponse } from '../../../models';
 
 @Component({
   selector: 'app-register',
@@ -59,24 +59,17 @@ export class RegisterComponent {
     { value: 'TARGETA_IDENTIDAD', label: 'Tarjeta de identidad' }
   ];
 
-  protected readonly accountTypes = [
-    { value: 'DEBITO', label: 'Débito' },
-    { value: 'CREDITO', label: 'Crédito' }
-  ];
-
   protected readonly registerForm = this.fb.nonNullable.group(
     {
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
       phone: ['', [Validators.required, Validators.minLength(7)]],
+      role: ['VENDEDOR', [Validators.required]],
       documentType: ['CEDULA' as const, [Validators.required]],
       documentNumber: ['', [Validators.required, Validators.minLength(5)]],
       birthDate: ['', [Validators.required]],
       address: ['', [Validators.required, Validators.minLength(6)]],
-      bankName: ['', [Validators.required, Validators.minLength(2)]],
-      bankAccount: ['', [Validators.required, Validators.minLength(5)]],
-      bankAccountType: ['DEBITO' as const, [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]]
     },
@@ -102,17 +95,18 @@ export class RegisterComponent {
 
     const {
       confirmPassword: _,
+      role,
       ...payload
     } = this.registerForm.getRawValue();
 
-    this.authService.register(payload as IRegisterPayload).subscribe({
+    this.authService.adminCreateUser(payload, role).subscribe({
       next: (response: IAuthResponse) => {
         this.isLoading.set(false);
         this.snackBar.open(response.message, 'Cerrar', {
           duration: 3500,
           panelClass: ['success-snackbar']
         });
-        this.router.navigate(['/login']);
+        this.registerForm.reset({ role: 'VENDEDOR', documentType: 'CEDULA' });
       },
       error: (error: IAuthResponse) => {
         this.isLoading.set(false);

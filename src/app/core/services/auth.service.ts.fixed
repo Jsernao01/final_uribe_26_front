@@ -1,4 +1,4 @@
-﻿import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { catchError, map, Observable, tap, throwError } from 'rxjs';
 import { API_BACKEND_BASE } from '../config/api.config';
@@ -30,7 +30,7 @@ export class AuthService {
 
   login(credentials: ILoginCredentials): Observable<IAuthResponse> {
     return this.http
-      .post<IBackendLoginResponse>(`${API_BACKEND_BASE}/auth/login`, {
+      .post<IBackendLoginResponse>(/auth/login\, {
         correo: credentials.email.trim(),
         contrasena: credentials.password
       })
@@ -46,13 +46,13 @@ export class AuthService {
             this.persistSession(response.user, response.token);
           }
         }),
-        catchError((error) => this.toAuthError(error, 'Correo o contraseña incorrectos.'))
+        catchError((error) => this.toAuthError(error, 'No fue posible iniciar sesion.'))
       );
   }
 
   adminCreateUser(payload: any, rol: string): Observable<IAuthResponse> {
     return this.http
-      .post(`${API_BACKEND_BASE}/usuarios/admin/crear/`, {
+      .post(/usuarios/admin/crear/', {
         nombres: payload.firstName.trim(),
         apellidos: payload.lastName.trim(),
         tipoDocumento: payload.documentType,
@@ -65,7 +65,7 @@ export class AuthService {
         cuentasBancarias: [
           {
             nombreBanco: payload.bankName?.trim() || 'Cuenta interna',
-            cuenta: payload.bankAccount?.trim() || 'ACC-',
+            cuenta: payload.bankAccount?.trim() || \ACC-',
             tipoCuenta: payload.bankAccountType ?? 'DEBITO'
           }
         ]
@@ -75,7 +75,7 @@ export class AuthService {
           success: true,
           message: 'Usuario creado correctamente.'
         })),
-        catchError((error) => this.toAuthError(error, 'No se pudo crear el usuario, intenta de nuevo.'))
+        catchError((error) => this.toAuthError(error, 'No fue posible crear el usuario.'))
       );
   }
 

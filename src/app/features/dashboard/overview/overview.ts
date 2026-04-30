@@ -1,8 +1,10 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+﻿import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChartConfiguration } from 'chart.js';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { KpiCardComponent } from '../components/kpi-card/kpi-card';
 import { SellersChartComponent } from '../components/sellers-chart/sellers-chart';
@@ -24,6 +26,8 @@ import {
     CommonModule,
     MatButtonModule,
     MatIconModule,
+    MatInputModule,
+    MatFormFieldModule,
     MatProgressSpinnerModule,
     KpiCardComponent,
     SellersChartComponent,
@@ -38,6 +42,7 @@ export class OverviewComponent implements OnInit {
 
   protected readonly isLoading = signal(true);
   protected readonly snapshot = signal<IDashboardSnapshot | null>(null);
+  protected readonly sellerFilter = signal<string>('');
 
   protected readonly analytics = computed(() => this.snapshot()?.analytics ?? null);
   protected readonly statuses = computed(() => this.snapshot()?.statuses ?? []);
@@ -48,9 +53,7 @@ export class OverviewComponent implements OnInit {
 
   protected readonly kpis = computed<IKpi[]>(() => {
     const analytics = this.analytics();
-    if (!analytics) {
-      return [];
-    }
+    if (!analytics) return [];
 
     const bestProduct = analytics.productos_mas_vendidos[0]?.producto_nombre ?? 'Sin ventas';
     const topClient = analytics.clientes_que_mas_compran[0]?.cliente_nombre ?? 'Sin clientes';
@@ -66,23 +69,21 @@ export class OverviewComponent implements OnInit {
       {
         title: 'Ticket promedio',
         value: this.formatCurrency(analytics.resumen.promedio_por_venta),
-        caption: `${analytics.resumen.total_unidades_vendidas} unidades vendidas`,
+        caption: `${analytics.resumen.total_ventas} ordenes`,
         icon: 'receipt_long',
         accent: 'secondary'
       },
       {
         title: 'Producto líder',
         value: bestProduct,
-        caption: `${analytics.productos_mas_vendidos[0]?.unidades_vendidas ?? 0} unidades`,
+        caption: `Top en ventas`,
         icon: 'inventory_2',
         accent: 'warning'
       },
       {
         title: 'Cliente top',
         value: topClient,
-        caption: this.formatCurrency(
-          analytics.clientes_que_mas_compran[0]?.monto_total_comprado ?? 0
-        ),
+        caption: 'Mayor volumen de compra',
         icon: 'workspace_premium',
         accent: 'success'
       }
@@ -113,10 +114,10 @@ export class OverviewComponent implements OnInit {
   protected readonly clientsChartData = computed<ChartConfiguration<'doughnut'>['data']>(() => {
     const items = this.topClients().slice(0, 5);
     return {
-      labels: items.map((item) => item.cliente_nombre),
+      labels: items.map((item: IClientInsight) => item.cliente_nombre),
       datasets: [
         {
-          data: items.map((item) => item.monto_total_comprado),
+          data: items.map((item: IClientInsight) => item.monto_total_comprado),
           backgroundColor: ['#0f766e', '#2cae9c', '#74decb', '#ff9d5c', '#e97b4d'],
           borderWidth: 0
         }
@@ -165,10 +166,27 @@ export class OverviewComponent implements OnInit {
 
   protected reload(): void {
     this.isLoading.set(true);
-    this.salesService.getDashboardSnapshot().subscribe((snapshot) => {
+    this.salesService.getDashboardSnapshot(false, this.sellerFilter()).subscribe((snapshot) => {
       this.snapshot.set(snapshot);
       this.isLoading.set(false);
     });
+  }
+
+  protected applySellerFilter(name: string): void {
+    this.sellerFilter.set(name);
+    this.reload();
+  }
+
+  protected generateDemoData(): void {
+    this.isLoading.set(true);
+    this.salesService.getDashboardSnapshot(true, '').subscribe((snapshot) => {
+      this.snapshot.set(snapshot);
+      this.isLoading.set(false);
+    });
+  }
+
+  protected exportData(): void {
+    this.salesService.exportToExcel(this.sellerFilter());
   }
 
   protected formatCurrency(value: number): string {
@@ -187,19 +205,15 @@ export class OverviewComponent implements OnInit {
     }).format(value ?? 0);
   }
 
-  protected productStock(product: { stock: { cantidad: number }[] }): number {
-    return product.stock.reduce((total, item) => total + (item.cantidad ?? 0), 0);
-  }
-
-  protected trackProduct(_: number, item: IProductInsight): string {
+  protected trackProduct(_: number, item: any): string {
     return item.producto_id ?? item.producto_nombre;
   }
 
-  protected trackClient(_: number, item: IClientInsight): string {
+  protected trackClient(_: number, item: any): string {
     return item.cliente_id ?? item.cliente_nombre;
   }
 
-  protected trackEmployee(_: number, item: IEmployeeInsight): string {
+  protected trackEmployee(_: number, item: any): string {
     return item.empleado_id ?? item.empleado_nombre;
   }
 }

@@ -1,6 +1,7 @@
 @use '@angular/material' as mat;
 
 html {
+  font-size: 14px;
   height: 100%;
   @include mat.theme(
     (
@@ -8,16 +9,16 @@ html {
         primary: mat.$cyan-palette,
         tertiary: mat.$orange-palette,
       ),
-      typography: 'Space Grotesk',
-      density: 0,
+      typography: 'Open Sans',
+      density: -2,
     )
   );
 }
 
 :root {
   color-scheme: light;
-  --font-sans: 'Space Grotesk', 'Segoe UI', sans-serif;
-  --font-display: 'Fraunces', Georgia, serif;
+  --font-sans: 'Open Sans', 'Segoe UI', sans-serif;
+  --font-display: 'Open Sans', Georgia, serif;
   --bg: #f4efe6;
   --bg-elevated: rgba(255, 252, 245, 0.74);
   --bg-soft: rgba(255, 255, 255, 0.56);
@@ -98,16 +99,20 @@ a {
   text-decoration: none;
 }
 
-h1,
-h2,
-h3,
-h4 {
+h1 { font-size: 1.8rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.2rem; }
+h4 { font-size: 1rem; }
+
+h1, h2, h3, h4 {
   font-family: var(--font-display);
   letter-spacing: -0.03em;
   margin: 0;
 }
 
 p {
+  font-size: 0.95rem;
+  line-height: 1.5;
   margin: 0;
 }
 
