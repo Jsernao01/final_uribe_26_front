@@ -1,4 +1,4 @@
-﻿import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChartConfiguration } from 'chart.js';
 import { MatButtonModule } from '@angular/material/button';
@@ -43,6 +43,7 @@ export class OverviewComponent implements OnInit {
   protected readonly isLoading = signal(true);
   protected readonly snapshot = signal<IDashboardSnapshot | null>(null);
   protected readonly sellerFilter = signal<string>('');
+  protected readonly showAllProducts = signal<boolean>(false);
 
   protected readonly analytics = computed(() => this.snapshot()?.analytics ?? null);
   protected readonly statuses = computed(() => this.snapshot()?.statuses ?? []);
@@ -55,21 +56,26 @@ export class OverviewComponent implements OnInit {
     const analytics = this.analytics();
     if (!analytics) return [];
 
-    const bestProduct = analytics.productos_mas_vendidos[0]?.producto_nombre ?? 'Sin ventas';
-    const topClient = analytics.clientes_que_mas_compran[0]?.cliente_nombre ?? 'Sin clientes';
+    const bestProduct = (analytics.productos_mas_vendidos && analytics.productos_mas_vendidos.length > 0) 
+      ? analytics.productos_mas_vendidos[0].producto_nombre 
+      : 'Sin productos';
+
+    const topClient = (analytics.clientes_que_mas_compran && analytics.clientes_que_mas_compran.length > 0)
+      ? analytics.clientes_que_mas_compran[0].cliente_nombre
+      : 'Sin clientes';
 
     return [
       {
         title: 'Ingresos totales',
-        value: this.formatCurrency(analytics.resumen.total_ingresos),
-        caption: `${analytics.resumen.total_ventas} ventas registradas`,
+        value: this.formatCurrency(analytics.resumen.total_ingresos || 0),
+        caption: `${analytics.resumen.total_ventas || 0} ventas registradas`,
         icon: 'payments',
         accent: 'primary'
       },
       {
-        title: 'Ticket promedio',
-        value: this.formatCurrency(analytics.resumen.promedio_por_venta),
-        caption: `${analytics.resumen.total_ventas} ordenes`,
+        title: 'Factura promedio',
+        value: this.formatCurrency(analytics.resumen.promedio_por_venta || 0),
+        caption: `${analytics.resumen.total_ventas || 0} órdenes`,
         icon: 'receipt_long',
         accent: 'secondary'
       },
@@ -90,10 +96,20 @@ export class OverviewComponent implements OnInit {
     ];
   });
 
-  protected readonly topProducts = computed(() => this.analytics()?.productos_mas_vendidos ?? []);
+  protected readonly topProducts = computed(() => {
+    const products = this.analytics()?.productos_mas_vendidos ?? [];
+    return this.showAllProducts() ? products : products.slice(0, 10);
+  });
   protected readonly topClients = computed(() => this.analytics()?.clientes_que_mas_compran ?? []);
   protected readonly topEmployees = computed(() => this.analytics()?.empleados_que_mas_venden ?? []);
-  protected readonly analyticsMessages = computed(() => this.analytics()?.mensajes ?? []);
+  protected readonly analyticsMessages = computed(() => {
+    const raw = this.analytics()?.mensajes || [];
+    return raw.filter(m => 
+      !m.includes('Capa de limpieza') && 
+      !m.includes('registros simulados') && 
+      !m.includes('http://')
+    );
+  });
 
   protected readonly productsChartData = computed<ChartConfiguration<'bar'>['data']>(() => {
     const items = this.topProducts().slice(0, 5);
@@ -186,7 +202,7 @@ export class OverviewComponent implements OnInit {
   }
 
   protected exportData(): void {
-    this.salesService.exportToExcel(this.sellerFilter());
+    this.salesService.exportToExcel(this.sellerFilter(), this.mode() === 'demo');
   }
 
   protected formatCurrency(value: number): string {
@@ -217,3 +233,4 @@ export class OverviewComponent implements OnInit {
     return item.empleado_id ?? item.empleado_nombre;
   }
 }
+

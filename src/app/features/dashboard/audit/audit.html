@@ -1,27 +1,27 @@
 <section class="audit-shell">
   <header class="audit-header app-surface">
     <div class="header-info">
-      <h2>Laboratorio de Calidad de Datos</h2>
-      <p>Prueba de concepto: Inyección de errores aleatorios y curación automática con Pandas.</p>
+      <h2>Normalización de Prendas</h2>
+      <p>Vista previa del procesamiento automático de datos antes del ingreso.</p>
     </div>
     <div class="header-actions">
       <button mat-flat-button color="accent" (click)="generateAndClean()" [disabled]="isCleaning()">
         <mat-icon>auto_fix_high</mat-icon>
-        <span>Generar y Limpiar Inventario</span>
+        <span>Procesar Lote de Prueba</span>
       </button>
     </div>
   </header>
 
   <div class="audit-grid">
     <div class="audit-column app-surface">
-      <h3>Estado Sucio (Simulado)</h3>
+      <h3>Registro de Origen</h3>
       @if (isCleaning()) {
         <mat-spinner diameter="30"></mat-spinner>
       } @else if (dirtyData().length > 0) {
         <div class="item-list">
-          @for (item of dirtyData(); track item.id) {
+          @for (item of dirtyData(); track $index) {
             <div class="item-card dirty">
-              <span class="badge error">Sucio</span>
+              <span class="badge error">Entrada</span>
               <strong>{{ item.nombre }}</strong>
               <div class="metrics">
                 <span>Precio: {{ item.precio }}</span>
@@ -31,29 +31,29 @@
           }
         </div>
       } @else {
-        <p class="empty-msg">Pulsa el botón para iniciar la prueba de estrés de datos.</p>
+        <p class="empty-msg">Pulsa el botón para cargar y normalizar las prendas del catálogo real.</p>
       }
     </div>
 
     <div class="audit-column app-surface">
-      <h3>Estado Limpio (Pandas)</h3>
+      <h3>Prendas Normalizadas</h3>
       @if (isCleaning()) {
         <mat-spinner diameter="30"></mat-spinner>
       } @else if (cleanData().length > 0) {
         <div class="item-list">
-          @for (item of cleanData(); track item.id) {
+          @for (item of cleanData(); track $index) {
             <div class="item-card clean bounce-in">
-              <span class="badge success">Limpio</span>
+              <span class="badge success">Listo para Catálogo</span>
               <strong>{{ item.nombre }}</strong>
               <div class="metrics">
-                <span>Precio: {{ item.precio | currency:'COP':'symbol':'1.0-0' }}</span>
+                <span>Precio: {{ parseNumber(item.precio) | currency:'COP':'symbol':'1.0-0' }}</span>
                 <span>Talla: {{ item.talla }}</span>
               </div>
             </div>
           }
         </div>
       } @else {
-        <p class="empty-msg">Los resultados curados aparecerán aquí.</p>
+        <p class="empty-msg">Aquí aparecerán los datos optimizados para el negocio.</p>
       }
     </div>
   </div>

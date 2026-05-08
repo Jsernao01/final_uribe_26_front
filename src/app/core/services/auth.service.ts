@@ -131,6 +131,11 @@ export class AuthService {
 
   private extractApiMessage(error: unknown, fallback: string): string {
     if (error instanceof HttpErrorResponse) {
+      // Si la respuesta es HTML, significa que el proxy falló (backend apagado)
+      if (typeof error.error === 'string' && error.error.includes('<!DOCTYPE html>')) {
+        return 'El servidor de datos (Backend) no está respondiendo. Por favor, asegúrate de que el servicio esté iniciado.';
+      }
+
       if (typeof error.error === 'string' && error.error.trim()) {
         return error.error;
       }

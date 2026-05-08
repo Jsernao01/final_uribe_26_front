@@ -20,17 +20,23 @@ export class AuditComponent {
   protected readonly cleanData = signal<any[]>([]);
   protected readonly isCleaning = signal(false);
 
+  protected parseNumber(value: any): number {
+    if (typeof value === 'number') return value;
+    const cleaned = String(value).replace(/[^0-9]/g, '');
+    return cleaned ? parseInt(cleaned, 10) : 0;
+  }
+
   generateAndClean(): void {
     this.isCleaning.set(true);
     this.dirtyData.set([]);
     this.cleanData.set([]);
     
-    // 1. Obtenemos datos sucios
-    this.http.get<any>(`${API_ANALYTICS_BASE}/utilidades/simular-inventario-sucio`).subscribe({
+    // Obtenemos los productos reales del backend a través de la API de analítica
+    // la cual se encargará de "ensuciarlos" para la vista previa
+    this.http.get<any>(`${API_ANALYTICS_BASE}/utilidades/prendas-reales-sucias`).subscribe({
       next: (res) => {
         this.dirtyData.set(res.resultado);
         
-        // 2. Inmediatamente ejecutamos la limpieza para mostrar el contraste
         this.http.post<any>(`${API_ANALYTICS_BASE}/utilidades/limpiar`, {
           registros: res.resultado
         }).subscribe({

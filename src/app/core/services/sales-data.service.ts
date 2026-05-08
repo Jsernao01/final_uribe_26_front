@@ -69,7 +69,7 @@ export class SalesDataService {
     );
   }
 
-  exportToExcel(sellerName: string = ""): void {
+  exportToExcel(sellerName: string = "", useDemo: boolean = false): void {
     const filters = {
       filtros_usuarios: { nombres: '', apellidos: '', correo: '' },
       filtros_productos: {
@@ -82,7 +82,7 @@ export class SalesDataService {
       },
       filtros_vendedores: { nombre: sellerName },
       ventas: [],
-      usar_datos_ejemplo: false,
+      usar_datos_ejemplo: useDemo,
       ensuciar_resultado: false,
       limpiar_datos: true
     };
